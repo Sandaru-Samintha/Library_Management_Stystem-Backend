@@ -26,7 +26,7 @@ public class BookService {
     private BookRepository bookRepository;
 
     public  String saveBook(BookDto bookDto){
-        if(bookRepository.existsById(bookDto.getBookID())){
+        if(bookRepository.existsByBookTitleIgnoreCaseAndBookAuthorIgnoreCase(bookDto.getBookTitle(),bookDto.getBookAuthor())){
             return VarList.RSP_DUPLICATED;
         }
         else{

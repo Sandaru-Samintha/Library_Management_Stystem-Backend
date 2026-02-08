@@ -11,12 +11,14 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name="Book")
+@Table(name="Book"  ,uniqueConstraints = {@UniqueConstraint(columnNames = {"bookTitle", "bookAuthor"})
+})
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookID;
+
     private String bookTitle;
     private String bookAuthor;
     private String bookGenre;
