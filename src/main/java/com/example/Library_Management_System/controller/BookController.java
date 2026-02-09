@@ -4,7 +4,6 @@ import com.example.Library_Management_System.dto.BookDto;
 import com.example.Library_Management_System.dto.ResponseDto;
 import com.example.Library_Management_System.service.BookService;
 import com.example.Library_Management_System.util.VarList;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,29 +101,81 @@ public class BookController {
             return new ResponseEntity(responseDto,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    @GetMapping("searchBook/{bookID}")
-    public ResponseEntity searchBook(@PathVariable Long bookID){
-        try{
-            BookDto bookDto = bookService.searchBook(bookID);
-            if(bookDto != null) {
+    // Search first matching book by title or author
+    @GetMapping("/searchBook/{keyword}")
+    public ResponseEntity<ResponseDto> searchBook(@PathVariable String keyword) {
+        try {
+            BookDto bookDto = bookService.searchBook(keyword);
+
+            if (bookDto != null) {
                 responseDto.setCode(VarList.RSP_SUCCESS);
-                responseDto.setMessage("Success");
+                responseDto.setMessage("Book found");
                 responseDto.setContent(bookDto);
-                return new ResponseEntity(responseDto,HttpStatus.ACCEPTED);
-            }
-            else {
+                return new ResponseEntity<>(responseDto, HttpStatus.OK);
+            } else {
                 responseDto.setCode(VarList.RSP_NO_DATA_FOUND);
-                responseDto.setMessage("No Existed Book Available In The bookID");
+                responseDto.setMessage("No matching book found");
                 responseDto.setContent(null);
-                return new ResponseEntity(responseDto,HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             responseDto.setCode(VarList.RSP_FAIL);
             responseDto.setMessage(ex.getMessage());
             responseDto.setContent(null);
-            return new ResponseEntity(responseDto,HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // Search all matching books
+    @GetMapping("/searchBooks")
+    public ResponseEntity<ResponseDto> searchBooks(@RequestParam String keyword) {
+        try {
+            List<BookDto> books = bookService.searchBooks(keyword);
+
+            if (!books.isEmpty()) {
+                responseDto.setCode(VarList.RSP_SUCCESS);
+                responseDto.setMessage("Books found");
+                responseDto.setContent(books);
+                return new ResponseEntity<>(responseDto, HttpStatus.OK);
+            } else {
+                responseDto.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDto.setMessage("No books found");
+                responseDto.setContent(null);
+                return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception ex) {
+            responseDto.setCode(VarList.RSP_FAIL);
+            responseDto.setMessage(ex.getMessage());
+            responseDto.setContent(null);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Search only available books
+    @GetMapping("/searchAvailableBooks")
+    public ResponseEntity<ResponseDto> searchAvailableBooks(@RequestParam String keyword) {
+        try {
+            List<BookDto> books = bookService.searchAvailableBooks(keyword);
+
+            if (!books.isEmpty()) {
+                responseDto.setCode(VarList.RSP_SUCCESS);
+                responseDto.setMessage("Available books found");
+                responseDto.setContent(books);
+                return new ResponseEntity<>(responseDto, HttpStatus.OK);
+            } else {
+                responseDto.setCode(VarList.RSP_NO_DATA_FOUND);
+                responseDto.setMessage("No available books found");
+                responseDto.setContent(null);
+                return new ResponseEntity<>(responseDto, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception ex) {
+            responseDto.setCode(VarList.RSP_FAIL);
+            responseDto.setMessage(ex.getMessage());
+            responseDto.setContent(null);
+            return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @DeleteMapping("/deleteBook/{bookID}")
     public ResponseEntity deleteBook(@PathVariable long bookID){
         try{

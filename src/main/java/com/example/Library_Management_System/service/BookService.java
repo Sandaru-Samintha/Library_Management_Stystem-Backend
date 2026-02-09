@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -46,18 +47,33 @@ public class BookService {
     }
 
     public List<BookDto> getAllBooks(){
-        List<BookDto> bookList = getAllBooks();
+        List<Book> bookList = bookRepository.findAll();
         return modelMapper.map(bookList, new TypeToken<List<BookDto>>(){}.getType());
     }
 
-    public BookDto searchBook(Long bookID){
-        if (bookRepository.existsById(bookID)) {
-            Book book = bookRepository.findById(bookID).orElse(null);
-            return modelMapper.map(book, BookDto.class);
-        }
-        else {
-            return null;
-        }
+    // Search first matching book by title or author
+    public BookDto searchBook(String keyword) {
+        return bookRepository.findByBookTitleContainingIgnoreCaseOrBookAuthorContainingIgnoreCase(keyword, keyword)
+                .stream()
+                .findFirst()
+                .map(book -> modelMapper.map(book, BookDto.class))
+                .orElse(null);
+    }
+
+    // Search all matching books
+    public List<BookDto> searchBooks(String keyword) {
+        return bookRepository.findByBookTitleContainingIgnoreCaseOrBookAuthorContainingIgnoreCase(keyword, keyword)
+                .stream()
+                .map(book -> modelMapper.map(book, BookDto.class))
+                .collect(Collectors.toList());
+    }
+
+    // Search only available books
+    public List<BookDto> searchAvailableBooks(String keyword) {
+        return bookRepository.findByBookAvailableTrueAndBookTitleContainingIgnoreCaseOrBookAvailableTrueAndBookAuthorContainingIgnoreCase(keyword, keyword)
+                .stream()
+                .map(book -> modelMapper.map(book, BookDto.class))
+                .collect(Collectors.toList());
     }
 
     public  String deleteBook(Long bookID){
