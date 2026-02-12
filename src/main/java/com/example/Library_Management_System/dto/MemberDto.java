@@ -11,12 +11,11 @@ import java.time.LocalDate;
 @Data
 public class MemberDto {
 
-
-    private Long memberID;
-    private String fullName;
-    private String email;
-    private String phone;
-    private String address;
+    private Long memID;
+    private String memFullName;
+    private String memEmail;
+    private String memPhoneNumber;
+    private String memAddress;
     private LocalDate membershipDate;
     private boolean active;
 
