@@ -5,4 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberRepository extends JpaRepository<Member , Long> {
     boolean existByEmailIgnoreCase(String memEmail);
+
+    boolean existsByEmailIgnoreCaseAndMemberIDNot(String memEmail, Long memID);
+
 }
