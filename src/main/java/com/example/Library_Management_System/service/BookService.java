@@ -69,8 +69,8 @@ public class BookService {
     }
 
     // Search only available books
-    public List<BookDto> searchAvailableBooks(String keyword) {
-        return bookRepository.findByBookAvailableTrueAndBookTitleContainingIgnoreCaseOrBookAvailableTrueAndBookAuthorContainingIgnoreCase(keyword, keyword)
+    public List<BookDto> searchAvailableBooks(String bookAvailable) {
+        return bookRepository.findByBookAvailableTrueAndBookTitleContainingIgnoreCaseOrBookAvailableTrueAndBookAuthorContainingIgnoreCase(bookAvailable, bookAvailable)
                 .stream()
                 .map(book -> modelMapper.map(book, BookDto.class))
                 .collect(Collectors.toList());
