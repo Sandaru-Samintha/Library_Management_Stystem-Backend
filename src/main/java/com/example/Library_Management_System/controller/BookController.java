@@ -153,9 +153,9 @@ public class BookController {
 
     // Search only available books
     @GetMapping("/searchAvailableBooks")
-    public ResponseEntity<ResponseDto> searchAvailableBooks(@RequestParam String keyword) {
+    public ResponseEntity<ResponseDto> searchAvailableBooks(@RequestParam String bookAvailable) {
         try {
-            List<BookDto> books = bookService.searchAvailableBooks(keyword);
+            List<BookDto> books = bookService.searchAvailableBooks(bookAvailable);
 
             if (!books.isEmpty()) {
                 responseDto.setCode(VarList.RSP_SUCCESS);
