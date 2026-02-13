@@ -10,9 +10,11 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+@Transactional
 @Service
 public class MemberService {
 
@@ -24,7 +26,7 @@ public class MemberService {
 
 
     public String saveMember(MemberDto memberDto) {
-        if (memberRepository.existByEmailIgnoreCase(memberDto.getMemEmail())) {
+        if (memberRepository.existsByMemEmailIgnoreCase(memberDto.getMemEmail())) {
             return VarList.RSP_DUPLICATED;
         } else {
             memberDto.setMembershipDate(LocalDate.now());
@@ -40,7 +42,7 @@ public class MemberService {
 
             return VarList.RSP_NO_DATA_FOUND;
 
-        } else if (memberRepository.existsByEmailIgnoreCaseAndMemberIDNot(memberDto.getMemEmail(), memberDto.getMemID())) {
+        } else if (memberRepository.existsByMemEmailIgnoreCaseAndMemIDNot(memberDto.getMemEmail(), memberDto.getMemID())) {
 
             return VarList.RSP_DUPLICATED;
 

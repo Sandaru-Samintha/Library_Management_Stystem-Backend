@@ -4,8 +4,8 @@ import com.example.Library_Management_System.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberRepository extends JpaRepository<Member , Long> {
-    boolean existByEmailIgnoreCase(String memEmail);
+    boolean existsByMemEmailIgnoreCase(String memEmail);
 
-    boolean existsByEmailIgnoreCaseAndMemberIDNot(String memEmail, Long memID);
+    boolean existsByMemEmailIgnoreCaseAndMemIDNot(String memEmail, Long memID);
 
 }
