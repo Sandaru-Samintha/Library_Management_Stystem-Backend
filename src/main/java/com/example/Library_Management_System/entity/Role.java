@@ -4,10 +4,10 @@ public enum Role {
     ADMIN, MEMBER
 }
 
-//public enum BorrowStatus {
-//    BORROWED, RETURNED, OVERDUE
-//}
-//
+public enum BorrowStatus {
+    BORROWED, RETURNED, OVERDUE
+}
+
 //public enum FineStatus {
 //    PAID, UNPAID
 //}
