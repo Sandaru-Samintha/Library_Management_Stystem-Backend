@@ -27,3 +27,4 @@ public interface BorrowRecordRepository extends JpaRepository<BorrowRecord,Long>
 
     boolean existsByMemberAndBookAndStatus(Member member,Book book,BorrowStatus status);
 }
+
