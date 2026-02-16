@@ -1,6 +1,5 @@
 package com.example.Library_Management_System.config;
 
-import com.example.Library_Management_System.security.JwtAuthenticationFilter;
 import com.example.Library_Management_System.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
