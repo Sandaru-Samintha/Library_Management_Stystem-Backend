@@ -1,69 +1,105 @@
 package com.example.Library_Management_System.service;
 
-
-import com.example.Library_Management_System.dto.MemberDto;
+import com.example.Library_Management_System.dto.MemberDTO;
+import com.example.Library_Management_System.dto.ResponseDTO;
 import com.example.Library_Management_System.entity.Member;
 import com.example.Library_Management_System.repository.MemberRepository;
 import com.example.Library_Management_System.util.VarList;
+import com.example.Library_Management_System.util.FileUploadUtil;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
-import java.time.LocalDate;
-import java.util.List;
+import java.util.Optional;
 
-@Transactional
 @Service
+@Transactional
 public class MemberService {
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public String saveMember(MemberDto memberDto) {
-        if (memberRepository.existsByMemEmailIgnoreCase(memberDto.getMemEmail())) {
-            return VarList.RSP_DUPLICATED;
+    @Autowired
+    private FileUploadUtil fileUploadUtil;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public ResponseDTO getMemberProfile() {
+        try {
+            String email = getCurrentUserEmail();
+            Optional<Member> memberOpt = memberRepository.findByMemEmail(email);
+
+            if (memberOpt.isPresent()) {
+                MemberDTO memberDTO = modelMapper.map(memberOpt.get(), MemberDTO.class);
+                return new ResponseDTO(VarList.RSP_SUCCESS,
+                        "Profile retrieved successfully", memberDTO, null);
+            } else {
+                return new ResponseDTO(VarList.RSP_NO_DATA_FOUND,
+                        "Member not found", null, null);
+            }
+        } catch (Exception e) {
+            return new ResponseDTO(VarList.RSP_ERROR,
+                    "Failed to retrieve profile: " + e.getMessage(), null, null);
+        }
+    }
+
+    public ResponseDTO updateMemberProfile(MemberDTO memberDTO) {
+        try {
+            String email = getCurrentUserEmail();
+            Optional<Member> memberOpt = memberRepository.findByMemEmail(email);
+
+            if (!memberOpt.isPresent()) {
+                return new ResponseDTO(VarList.RSP_NO_DATA_FOUND,
+                        "Member not found", null, null);
+            }
+
+            Member member = memberOpt.get();
+
+            // Map DTO to existing entity (excluding password & image)
+            modelMapper.map(memberDTO, member);
+
+            // Update password if provided
+            if (memberDTO.getMemPassword() != null &&
+                    !memberDTO.getMemPassword().isEmpty()) {
+                member.setMemPassword(
+                        passwordEncoder.encode(memberDTO.getMemPassword()));
+            }
+
+            // Handle profile image upload
+            if (memberDTO.getProfileImage() != null &&
+                    !memberDTO.getProfileImage().isEmpty()) {
+                String imageUrl =
+                        fileUploadUtil.saveMemberImage(memberDTO.getProfileImage());
+                member.setProfileImageUrl(imageUrl);
+            }
+
+            Member updatedMember = memberRepository.save(member);
+            MemberDTO responseDTO = modelMapper.map(updatedMember, MemberDTO.class);
+
+            return new ResponseDTO(VarList.RSP_SUCCESS,
+                    "Profile updated successfully", responseDTO, null);
+
+        } catch (Exception e) {
+            return new ResponseDTO(VarList.RSP_ERROR,
+                    "Failed to update profile: " + e.getMessage(), null, null);
+        }
+    }
+
+    private String getCurrentUserEmail() {
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
         } else {
-            memberDto.setMembershipDate(LocalDate.now());
-            memberDto.setActive(true);
-
-            memberRepository.save(modelMapper.map(memberDto, Member.class));
-            return VarList.RSP_SUCCESS;
-        }
-    }
-
-    public String updateMember(MemberDto memberDto){
-        if(!memberRepository.existsById(memberDto.getMemID())){
-
-            return VarList.RSP_NO_DATA_FOUND;
-
-        } else if (memberRepository.existsByMemEmailIgnoreCaseAndMemIDNot(memberDto.getMemEmail(), memberDto.getMemID())) {
-
-            return VarList.RSP_DUPLICATED;
-
-        }else {
-
-            memberRepository.save(modelMapper.map(memberDto,Member.class));
-            return VarList.RSP_SUCCESS;
-        }
-    }
-
-    public List<MemberDto> getAllMembers(){
-        List<Member> members = memberRepository.findAll();
-        return modelMapper.map(members,new TypeToken<List<MemberDto>>(){}.getType());
-    }
-    public String deleteMember(Long memID){
-        if(memberRepository.existsById(memID)){
-            memberRepository.deleteById(memID);
-            return VarList.RSP_SUCCESS;
-        }
-        else {
-            return VarList.RSP_NO_DATA_FOUND;
+            return principal.toString();
         }
     }
 }
