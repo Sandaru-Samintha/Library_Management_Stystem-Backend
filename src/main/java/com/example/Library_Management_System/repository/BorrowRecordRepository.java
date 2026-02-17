@@ -26,5 +26,7 @@ public interface BorrowRecordRepository extends JpaRepository<BorrowRecord,Long>
     List<BorrowRecord>findOverdueBorrows(@Param("CurrentDate")LocalDate currentDate);
 
     boolean existsByMemberAndBookAndStatus(Member member,Book book,BorrowStatus status);
+
+    List<BorrowRecord> findByDueDateBeforeAndStatus(LocalDate today, BorrowStatus borrowStatus);
 }
 
