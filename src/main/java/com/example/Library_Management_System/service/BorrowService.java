@@ -176,5 +176,56 @@ public class BorrowService {
             return principal.toString();
         }
     }
+
+    public ResponseDTO returnBook(Long borrowId) {
+        try {
+            Optional<BorrowRecord> borrowRecordOpt = borrowRecordRepository.findById(borrowId);
+
+            if (!borrowRecordOpt.isPresent()) {
+                return new ResponseDTO(VarList.RSP_NO_DATA_FOUND, "Borrow record not found", null, null);
+            }
+
+            BorrowRecord borrowRecord = borrowRecordOpt.get();
+
+            // Check if the book is already returned
+            if (borrowRecord.getStatus() == BorrowStatus.RETURNED) {
+                return new ResponseDTO(VarList.RSP_ERROR, "Book already returned", null, null);
+            }
+
+            LocalDate returnDate = LocalDate.now();
+            borrowRecord.setReturnDate(returnDate);
+            borrowRecord.setStatus(BorrowStatus.RETURNED);
+
+            // Calculate fine if overdue
+            if (returnDate.isAfter(borrowRecord.getDueDate())) {
+                long daysOverdue = ChronoUnit.DAYS.between(borrowRecord.getDueDate(), returnDate);
+                double fineAmount = daysOverdue * 10.0; // Rs. 10 per day
+                borrowRecord.setFineAmount(fineAmount);
+
+                // Create fine record
+                fineService.createFine(borrowRecord);
+            }
+
+            // Update book availability
+            Book book = borrowRecord.getBook();
+            book.setAvailableCopies(book.getAvailableCopies() + 1);
+            book.setBookAvailable(true);
+            bookRepository.save(book);
+
+            BorrowRecord updatedRecord = borrowRecordRepository.save(borrowRecord);
+
+            BorrowRecordDTO updatedRecordDTO = modelMapper.map(updatedRecord, BorrowRecordDTO.class);
+
+            String message = "Book returned successfully";
+            if (borrowRecord.getFineAmount() != null && borrowRecord.getFineAmount() > 0) {
+                message += String.format(" with a fine of Rs. %.2f", borrowRecord.getFineAmount());
+            }
+
+            return new ResponseDTO(VarList.RSP_SUCCESS, message, updatedRecordDTO, null);
+
+        } catch (Exception e) {
+            return new ResponseDTO(VarList.RSP_ERROR, "Failed to return book: " + e.getMessage(), null, null);
+        }
+    }
 }
 
