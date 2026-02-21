@@ -1,5 +1,6 @@
 package com.example.Library_Management_System.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -43,11 +44,13 @@ public class Member {
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
-    //@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    //private List<BorrowRecord> borrowRecords;
+    @JsonIgnore  // Prevent infinite recursion
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<BorrowRecord> borrowRecords;
 
-   // @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    //private List<Fine> fines;
+    @JsonIgnore  // Prevent infinite recursion
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Fine> fines;
 
     @PrePersist
     protected void onCreate() {

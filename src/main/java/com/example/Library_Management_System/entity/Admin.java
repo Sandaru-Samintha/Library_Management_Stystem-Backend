@@ -1,18 +1,20 @@
 package com.example.Library_Management_System.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "admin" ,uniqueConstraints = @UniqueConstraint(columnNames = "adminEmail"))
+@Table(name = "admin",
+        uniqueConstraints = @UniqueConstraint(columnNames = "adminEmail"))
 public class Admin {
 
     @Id
@@ -22,7 +24,7 @@ public class Admin {
     @Column(nullable = false)
     private String adminFullName;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String adminEmail;
 
     private String adminPhoneNumber;
@@ -33,23 +35,24 @@ public class Admin {
     private String adminDepartment;
     private String profileImageUrl;
 
-
     @Enumerated(EnumType.STRING)
     private Role role = Role.ADMIN;
 
     private LocalDateTime createdDate;
-    private  LocalDateTime updatedDate;
+    private LocalDateTime updatedDate;
 
-    @PreUpdate
-    protected  void onCreate(){
-        createdDate =LocalDateTime.now();
+    @JsonIgnore
+    @OneToMany(mappedBy = "admin")
+    private List<BorrowRecord> borrowRecords;
+
+    @PrePersist
+    protected void onCreate() {
+        createdDate = LocalDateTime.now();
         updatedDate = LocalDateTime.now();
     }
+
     @PreUpdate
-    protected  void onUpdate(){
+    protected void onUpdate() {
         updatedDate = LocalDateTime.now();
     }
-
-
-
 }

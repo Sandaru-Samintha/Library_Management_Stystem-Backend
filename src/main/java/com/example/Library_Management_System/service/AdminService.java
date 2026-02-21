@@ -513,25 +513,41 @@ public class AdminService {
 
     public ResponseDTO createAdmin(AdminDTO adminDTO) {
         try {
+            // Add debug logs
+            System.out.println("=== Creating Admin ===");
+            System.out.println("Email: " + adminDTO.getAdminEmail());
+            System.out.println("Password: " + (adminDTO.getAdminPassword() != null ? "provided" : "NULL!"));
+            System.out.println("Name: " + adminDTO.getAdminFullName());
+            System.out.println("Has file: " + (adminDTO.getProfileImage() != null ? "yes" : "no"));
+
+            if (adminDTO.getAdminPassword() == null || adminDTO.getAdminPassword().isEmpty()) {
+                return new ResponseDTO(VarList.RSP_ERROR, "Password cannot be empty", null, null);
+            }
+
             if (adminRepository.existsByAdminEmail(adminDTO.getAdminEmail())) {
                 return new ResponseDTO(VarList.RSP_DUPLICATED, "Admin with this email already exists", null, null);
             }
 
             Admin admin = modelMapper.map(adminDTO, Admin.class);
             admin.setAdminPassword(passwordEncoder.encode(adminDTO.getAdminPassword()));
-            admin.setRole(com.example.Library_Management_System.entity.Role.ADMIN);
+            admin.setRole(Role.ADMIN);
 
             // Handle profile image upload
             if (adminDTO.getProfileImage() != null && !adminDTO.getProfileImage().isEmpty()) {
+                System.out.println("Uploading image: " + adminDTO.getProfileImage().getOriginalFilename());
                 String imageUrl = fileUploadUtil.saveAdminImage(adminDTO.getProfileImage());
                 admin.setProfileImageUrl(imageUrl);
+                System.out.println("Image saved at: " + imageUrl);
             }
 
             Admin savedAdmin = adminRepository.save(admin);
+            System.out.println("Admin saved with ID: " + savedAdmin.getAdminId());
+
             AdminDTO savedAdminDTO = modelMapper.map(savedAdmin, AdminDTO.class);
             return new ResponseDTO(VarList.RSP_SUCCESS, "Admin created successfully", savedAdminDTO, null);
 
         } catch (Exception e) {
+            e.printStackTrace(); // Print full stack trace
             return new ResponseDTO(VarList.RSP_ERROR, "Failed to create admin: " + e.getMessage(), null, null);
         }
     }

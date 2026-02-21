@@ -7,26 +7,29 @@ import com.example.Library_Management_System.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface BorrowRecordRepository extends JpaRepository<BorrowRecord,Long> {
-    List<BorrowRecord>findByMember(Member member);
-    List<BorrowRecord>findByBook(Book book);
+@Repository
+public interface BorrowRecordRepository extends JpaRepository<BorrowRecord, Long> {
 
-    List<BorrowRecord>findByStatus(BorrowStatus status);
+    List<BorrowRecord> findByMember(Member member);
 
-    List<BorrowRecord>findByMemberAndStatus(Member member,BorrowStatus status);
+    List<BorrowRecord> findByBook(Book book);
+
+    List<BorrowRecord> findByStatus(BorrowStatus status);
+
+    List<BorrowRecord> findByMemberAndStatus(Member member, BorrowStatus status);
 
     @Query("SELECT br FROM BorrowRecord br WHERE br.member.memId = :memberId AND br.status = 'BORROWED'")
     List<BorrowRecord> findCurrentBorrowsByMember(@Param("memberId") Long memberId);
 
     @Query("SELECT br FROM BorrowRecord br WHERE br.dueDate < :currentDate AND br.status = 'BORROWED'")
-    List<BorrowRecord>findOverdueBorrows(@Param("CurrentDate")LocalDate currentDate);
+    List<BorrowRecord> findOverdueBorrows(@Param("currentDate") LocalDate currentDate);
 
-    boolean existsByMemberAndBookAndStatus(Member member,Book book,BorrowStatus status);
+    boolean existsByMemberAndBookAndStatus(Member member, Book book, BorrowStatus status);
 
-    List<BorrowRecord> findByDueDateBeforeAndStatus(LocalDate today, BorrowStatus borrowStatus);
+    List<BorrowRecord> findByDueDateBeforeAndStatus(LocalDate dueDate, BorrowStatus status);
 }
-

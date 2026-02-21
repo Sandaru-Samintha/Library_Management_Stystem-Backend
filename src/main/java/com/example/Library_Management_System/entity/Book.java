@@ -1,5 +1,6 @@
 package com.example.Library_Management_System.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,14 +42,12 @@ public class Book {
     @Column(length = 500)
     private String bookImageUrl;
 
-
-
-
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
+    @JsonIgnore  // THIS IS THE KEY FIX - prevents infinite recursion
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-//    private List<BorrowRecord> borrowRecords;
+    private List<BorrowRecord> borrowRecords;
 
     @PrePersist
     protected void onCreate() {

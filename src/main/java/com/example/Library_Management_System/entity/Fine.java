@@ -1,5 +1,6 @@
 package com.example.Library_Management_System.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,10 +8,9 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Entity
 @Table(name = "fine")
@@ -21,11 +21,12 @@ public class Fine {
     private Long fineId;
 
     @ManyToOne
-    @JoinColumn(name = "member_id",nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
+    @JsonIgnoreProperties({"fines", "borrowRecords"})
     private Member member;
 
     @OneToOne
-    @JoinColumn(name = "borrow_id",nullable = false)
+    @JoinColumn(name = "borrow_id", nullable = false)
     private BorrowRecord borrowRecord;
 
     @Column(nullable = false)
@@ -40,26 +41,14 @@ public class Fine {
     private LocalDateTime updatedDate;
 
     @PrePersist
-    protected void onCreate(){
+    protected void onCreate() {
         fineDate = LocalDate.now();
-        createdDate=LocalDateTime.now();
-        updatedDate = LocalDateTime.now();
-
-        //calculate fine if overdue
-        if(borrowRecord != null && borrowRecord.getReturnDate() ==null ){
-            LocalDate dueDate = borrowRecord.getDueDate();
-            LocalDate today = LocalDate.now();
-
-            if(today.isAfter(dueDate)){
-                long daysOverdue = ChronoUnit.DAYS.between(dueDate,today);
-                this.amount = daysOverdue * 10.0; // Rs .10 per day
-            }
-        }
-    }
-    @PrePersist
-    protected void  onUpdate(){
+        createdDate = LocalDateTime.now();
         updatedDate = LocalDateTime.now();
     }
 
-
+    @PreUpdate
+    protected void onUpdate() {
+        updatedDate = LocalDateTime.now();
+    }
 }

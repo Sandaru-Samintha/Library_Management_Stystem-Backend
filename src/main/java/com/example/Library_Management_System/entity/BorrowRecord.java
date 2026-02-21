@@ -1,8 +1,7 @@
 package com.example.Library_Management_System.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
-import lombok.Cleanup;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,8 +9,8 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Entity
 @Table(name = "borrow_record")
@@ -22,11 +21,13 @@ public class BorrowRecord {
     private Long borrowId;
 
     @ManyToOne
-    @JoinColumn(name = "book_id",nullable = false)
+    @JoinColumn(name = "book_id", nullable = false)
+    @JsonIgnoreProperties({"borrowRecords"}) // Prevents recursion but allows other fields
     private Book book;
 
     @ManyToOne
-    @JoinColumn(name = "member_id" , nullable = false)
+    @JoinColumn(name = "member_id", nullable = false)
+    @JsonIgnoreProperties({"borrowRecords", "fines"}) // Prevents recursion
     private Member member;
 
     @ManyToOne
@@ -39,7 +40,6 @@ public class BorrowRecord {
     @Column(nullable = false)
     private LocalDate dueDate;
 
-    @Column
     private LocalDate returnDate;
 
     @Enumerated(EnumType.STRING)
@@ -50,11 +50,10 @@ public class BorrowRecord {
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
-
     @PrePersist
     protected void onCreate() {
         borrowDate = LocalDate.now();
-        dueDate = borrowDate.plusDays(14); // 14 days borrowing period
+        dueDate = borrowDate.plusDays(14);
         createdDate = LocalDateTime.now();
         updatedDate = LocalDateTime.now();
     }
@@ -63,5 +62,4 @@ public class BorrowRecord {
     protected void onUpdate() {
         updatedDate = LocalDateTime.now();
     }
-
 }
