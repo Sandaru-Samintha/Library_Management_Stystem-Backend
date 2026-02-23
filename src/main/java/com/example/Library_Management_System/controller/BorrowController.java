@@ -20,8 +20,7 @@ public class BorrowController {
     // ==================== MEMBER ENDPOINTS ====================
 
     /**
-     * 1. Borrow a book
-     * POST /api/borrow/book/{bookId}
+     * Borrow a book
      */
     @PostMapping("/book/{bookId}")
     @PreAuthorize("hasAuthority('MEMBER')")
@@ -31,8 +30,8 @@ public class BorrowController {
     }
 
     /**
-     * 2. Return a borrowed book
-     * PUT /api/borrow/return/{borrowId}
+     * Return a borrowed book
+
      */
     @PutMapping("/return/{borrowId}")
     @PreAuthorize("hasAuthority('MEMBER')")
@@ -42,8 +41,8 @@ public class BorrowController {
     }
 
     /**
-     * 3. Get my borrowed books
-     * GET /api/borrow/my-books
+     * Get my borrowed books
+
      */
     @GetMapping("/my-books")
     @PreAuthorize("hasAuthority('MEMBER')")
@@ -53,8 +52,8 @@ public class BorrowController {
     }
 
     /**
-     * 4. Get my complete borrow history
-     * GET /api/borrow/my-history
+     *  Get my complete borrow history
+
      */
     @GetMapping("/my-history")
     @PreAuthorize("hasAuthority('MEMBER')")
@@ -64,8 +63,8 @@ public class BorrowController {
     }
 
     /**
-     * 5. Get current borrowed books
-     * GET /api/borrow/current
+     * Get current borrowed books
+
      */
     @GetMapping("/current")
     @PreAuthorize("hasAuthority('MEMBER')")
@@ -75,8 +74,8 @@ public class BorrowController {
     }
 
     /**
-     * 6. Check if member has overdue books
-     * GET /api/borrow/overdue
+     * Check if member has overdue books
+
      */
     @GetMapping("/overdue")
     @PreAuthorize("hasAuthority('MEMBER')")
@@ -88,8 +87,8 @@ public class BorrowController {
     // ==================== ADMIN ENDPOINTS ====================
 
     /**
-     * 7. Get all borrow records
-     * GET /api/borrow/admin/all
+     * Get all borrow records
+
      */
     @GetMapping("/admin/all")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -99,8 +98,8 @@ public class BorrowController {
     }
 
     /**
-     * 8. Get borrows by status
-     * GET /api/borrow/admin/status/{status}
+     *  Get borrows by status
+
      */
     @GetMapping("/admin/status/{status}")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -110,8 +109,8 @@ public class BorrowController {
     }
 
     /**
-     * 9. Get borrow history for a specific member
-     * GET /api/borrow/admin/member/{memberId}
+     * Get borrow history for a specific member
+
      */
     @GetMapping("/admin/member/{memberId}")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -121,8 +120,8 @@ public class BorrowController {
     }
 
     /**
-     * 10. Get borrow history for a specific book
-     * GET /api/borrow/admin/book/{bookId}
+     * Get borrow history for a specific book
+
      */
     @GetMapping("/admin/book/{bookId}")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -132,8 +131,8 @@ public class BorrowController {
     }
 
     /**
-     * 11. Extend due date for a borrow
-     * PUT /api/borrow/admin/{borrowId}/extend?additionalDays=7
+     * Extend due date for a borrow
+
      */
     @PutMapping("/admin/{borrowId}/extend")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -145,8 +144,8 @@ public class BorrowController {
     }
 
     /**
-     * 12. Check and update overdue books
-     * POST /api/borrow/admin/check-overdue
+     * Check and update overdue books
+
      */
     @PostMapping("/admin/check-overdue")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -156,8 +155,8 @@ public class BorrowController {
     }
 
     /**
-     * 13. Get all active borrows
-     * GET /api/borrow/admin/active
+     *  Get all active borrows
+
      */
     @GetMapping("/admin/active")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -167,8 +166,8 @@ public class BorrowController {
     }
 
     /**
-     * 14. Get all overdue books
-     * GET /api/borrow/admin/overdue
+     * Get all overdue books
+
      */
     @GetMapping("/admin/overdue")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -178,8 +177,8 @@ public class BorrowController {
     }
 
     /**
-     * 15. Get books due for return today
-     * GET /api/borrow/admin/today-returns
+     *  Get books due for return today
+
      */
     @GetMapping("/admin/today-returns")
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -189,8 +188,8 @@ public class BorrowController {
     }
 
     /**
-     * 16. Get borrowing statistics
-     * GET /api/borrow/admin/stats
+     *  Get borrowing statistics
+
      */
     @GetMapping("/admin/stats")
     @PreAuthorize("hasAuthority('ADMIN')")
