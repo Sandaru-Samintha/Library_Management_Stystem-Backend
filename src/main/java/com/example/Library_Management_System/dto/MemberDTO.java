@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -18,6 +20,7 @@ public class MemberDTO {
     private String memPassword;
     private boolean active;
     private Role role;
+    private LocalDate membershipDate;
     private String profileImageUrl;
     private MultipartFile profileImage;
 }

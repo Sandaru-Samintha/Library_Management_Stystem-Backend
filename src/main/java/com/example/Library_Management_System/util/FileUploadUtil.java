@@ -15,50 +15,82 @@ import java.util.UUID;
 @Component
 public class FileUploadUtil {
 
-    @Value("${book.image.path}")
+    @Value("${book.image.path:src/main/resources/static/images/books/}")
     private String bookImagePath;
 
-    @Value("${member.image.path}")
+    @Value("${member.image.path:src/main/resources/static/images/members/}")
     private String memberImagePath;
 
-    @Value("${admin.image.path}")
+    @Value("${admin.image.path:src/main/resources/static/images/admins/}")
     private String adminImagePath;
 
     public String saveBookImage(MultipartFile file) throws IOException {
-        return saveImage(file, bookImagePath);
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
+        return saveImage(file, bookImagePath, "books");
     }
 
     public String saveMemberImage(MultipartFile file) throws IOException {
-        return saveImage(file, memberImagePath);
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
+        return saveImage(file, memberImagePath, "members");
     }
 
     public String saveAdminImage(MultipartFile file) throws IOException {
-        return saveImage(file, adminImagePath);
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
+        return saveImage(file, adminImagePath, "admins");
     }
 
-    private String saveImage(MultipartFile file, String directory) throws IOException {
-        // Create directory if it doesn't exist
-        Path uploadPath = Paths.get(directory);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
+    private String saveImage(MultipartFile file, String directory, String folderName) throws IOException {
+        try {
+            // Create directory if it doesn't exist
+            Path uploadPath = Paths.get(directory);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+                System.out.println("Created directory: " + uploadPath.toAbsolutePath());
+            }
+
+            // Validate file
+            if (file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
+                throw new IOException("File name is empty");
+            }
+
+            // Generate unique filename
+            String originalFileName = file.getOriginalFilename();
+            String extension = FilenameUtils.getExtension(originalFileName);
+
+            // Handle case when extension is null or empty
+            if (extension == null || extension.isEmpty()) {
+                extension = "jpg"; // default extension
+            }
+
+            String fileName = UUID.randomUUID().toString() + "." + extension;
+
+            // Save file
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            System.out.println("File saved successfully: " + filePath.toAbsolutePath());
+
+            // Return URL path for accessing the image
+            return "/images/" + folderName + "/" + fileName;
+
+        } catch (IOException e) {
+            System.err.println("Error saving file: " + e.getMessage());
+            throw e;
         }
-
-        // Generate unique filename
-        String originalFileName = file.getOriginalFilename();
-        String extension = FilenameUtils.getExtension(originalFileName);
-        String fileName = UUID.randomUUID().toString() + "." + extension;
-
-        // Save file
-        Path filePath = uploadPath.resolve(fileName);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        // Return URL path for accessing the image
-        return "/images/" + (directory.contains("books") ? "books/" :
-                directory.contains("members") ? "members/" : "admins/") + fileName;
     }
 
     public void deleteImage(String imageUrl) throws IOException {
-        if (imageUrl != null && !imageUrl.isEmpty()) {
+        if (imageUrl == null || imageUrl.isEmpty()) {
+            return;
+        }
+
+        try {
             String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
             String directory;
 
@@ -66,12 +98,25 @@ public class FileUploadUtil {
                 directory = bookImagePath;
             } else if (imageUrl.contains("/members/")) {
                 directory = memberImagePath;
-            } else {
+            } else if (imageUrl.contains("/admins/")) {
                 directory = adminImagePath;
+            } else {
+                System.err.println("Unknown image type: " + imageUrl);
+                return;
             }
 
             Path filePath = Paths.get(directory + fileName);
-            Files.deleteIfExists(filePath);
+            boolean deleted = Files.deleteIfExists(filePath);
+
+            if (deleted) {
+                System.out.println("Deleted image: " + filePath);
+            } else {
+                System.out.println("Image not found: " + filePath);
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error deleting image: " + e.getMessage());
+            throw e;
         }
     }
 }
