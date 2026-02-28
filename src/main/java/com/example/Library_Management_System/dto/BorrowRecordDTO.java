@@ -20,6 +20,7 @@ public class BorrowRecordDTO {
     private LocalDate returnDate;
     private BorrowStatus status;
     private Double fineAmount;
+    private Long fineId;
 
     // Book fields
     private Long bookId;

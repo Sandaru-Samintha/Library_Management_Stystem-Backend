@@ -34,13 +34,18 @@ public class FineService {
     private ModelMapper modelMapper;
 
     public Fine createFine(BorrowRecord borrowRecord) {
-        Fine fine = new Fine();
-        fine.setMember(borrowRecord.getMember());
-        fine.setBorrowRecord(borrowRecord);
-        fine.setAmount(borrowRecord.getFineAmount());
-        fine.setStatus(FineStatus.UNPAID);
+        try {
+            Fine fine = new Fine();
+            fine.setMember(borrowRecord.getMember());
+            fine.setBorrowRecord(borrowRecord);
+            fine.setAmount(borrowRecord.getFineAmount());
+            fine.setStatus(FineStatus.UNPAID);
 
-        return fineRepository.save(fine);
+            return fineRepository.save(fine);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to create fine: " + e.getMessage());
+        }
     }
 
     public ResponseDTO getMyFines() {
@@ -58,6 +63,7 @@ public class FineService {
             return new ResponseDTO(VarList.RSP_SUCCESS, "Fines retrieved successfully", fineDTOs, null);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseDTO(VarList.RSP_ERROR, "Failed to retrieve fines: " + e.getMessage(), null, null);
         }
     }
@@ -70,6 +76,7 @@ public class FineService {
             return new ResponseDTO(VarList.RSP_SUCCESS, "All fines retrieved successfully", fineDTOs, null);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseDTO(VarList.RSP_ERROR, "Failed to retrieve fines: " + e.getMessage(), null, null);
         }
     }
@@ -82,6 +89,7 @@ public class FineService {
             return new ResponseDTO(VarList.RSP_SUCCESS, "Fines retrieved successfully", fineDTOs, null);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseDTO(VarList.RSP_ERROR, "Failed to retrieve fines: " + e.getMessage(), null, null);
         }
     }
@@ -99,6 +107,7 @@ public class FineService {
             return new ResponseDTO(VarList.RSP_SUCCESS, "Member fines retrieved successfully", fineDTOs, null);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseDTO(VarList.RSP_ERROR, "Failed to retrieve member fines: " + e.getMessage(), null, null);
         }
     }
@@ -112,6 +121,12 @@ public class FineService {
             }
 
             Fine fine = fineOpt.get();
+
+            // Check if fine is already paid
+            if (fine.getStatus() == FineStatus.PAID) {
+                return new ResponseDTO(VarList.RSP_ERROR, "Fine is already paid", null, null);
+            }
+
             fine.setStatus(FineStatus.PAID);
 
             Fine paidFine = fineRepository.save(fine);
@@ -120,6 +135,7 @@ public class FineService {
             return new ResponseDTO(VarList.RSP_SUCCESS, "Fine paid successfully", paidFineDTO, null);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseDTO(VarList.RSP_ERROR, "Failed to pay fine: " + e.getMessage(), null, null);
         }
     }
@@ -133,6 +149,12 @@ public class FineService {
             }
 
             Fine fine = fineOpt.get();
+
+            // Check if fine is already waived/paid
+            if (fine.getStatus() == FineStatus.PAID && fine.getAmount() == 0) {
+                return new ResponseDTO(VarList.RSP_ERROR, "Fine is already waived", null, null);
+            }
+
             fine.setAmount(0.0);
             fine.setStatus(FineStatus.PAID);
 
@@ -142,23 +164,25 @@ public class FineService {
             return new ResponseDTO(VarList.RSP_SUCCESS, "Fine waived successfully", waivedFineDTO, null);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseDTO(VarList.RSP_ERROR, "Failed to waive fine: " + e.getMessage(), null, null);
         }
     }
 
     public ResponseDTO getFineByBorrowId(Long borrowId) {
         try {
-            Fine fine = fineRepository.findByBorrowRecord_BorrowId(borrowId);
+            Optional<Fine> fineOpt = fineRepository.findByBorrowRecord_BorrowId(borrowId);
 
-            if (fine == null) {
+            if (!fineOpt.isPresent()) {
                 return new ResponseDTO(VarList.RSP_NO_DATA_FOUND, "Fine not found for this borrow record", null, null);
             }
 
-            FineDTO fineDTO = modelMapper.map(fine, FineDTO.class);
+            FineDTO fineDTO = modelMapper.map(fineOpt.get(), FineDTO.class);
 
             return new ResponseDTO(VarList.RSP_SUCCESS, "Fine retrieved successfully", fineDTO, null);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseDTO(VarList.RSP_ERROR, "Failed to retrieve fine: " + e.getMessage(), null, null);
         }
     }

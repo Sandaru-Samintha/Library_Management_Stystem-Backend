@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/fines")
-@CrossOrigin
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class FineController {
 
     @Autowired
     private FineService fineService;
 
+    // Member endpoints
     @GetMapping("/my-fines")
     @PreAuthorize("hasAuthority('MEMBER')")
     public ResponseEntity<ResponseDTO> getMyFines() {
@@ -24,6 +25,14 @@ public class FineController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
+    @PostMapping("/pay/{fineId}")
+    @PreAuthorize("hasAuthority('MEMBER')")
+    public ResponseEntity<ResponseDTO> payFine(@PathVariable Long fineId) {
+        ResponseDTO responseDTO = fineService.payFine(fineId);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    // Admin endpoints
     @GetMapping("/admin/all")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getAllFines() {
@@ -45,24 +54,18 @@ public class FineController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/borrow/{borrowId}")
-    @PreAuthorize("hasAnyAuthority('MEMBER', 'ADMIN')")
-    public ResponseEntity<ResponseDTO> getFineByBorrowId(@PathVariable Long borrowId) {
-        ResponseDTO responseDTO = fineService.getFineByBorrowId(borrowId);
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-    }
-
-    @PostMapping("/pay/{fineId}")
-    @PreAuthorize("hasAuthority('MEMBER')")
-    public ResponseEntity<ResponseDTO> payFine(@PathVariable Long fineId) {
-        ResponseDTO responseDTO = fineService.payFine(fineId);
-        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-    }
-
     @PutMapping("/admin/waive/{fineId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> waiveFine(@PathVariable Long fineId) {
         ResponseDTO responseDTO = fineService.waiveFine(fineId);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    // Shared endpoint (accessible by both MEMBER and ADMIN)
+    @GetMapping("/borrow/{borrowId}")
+    @PreAuthorize("hasAnyAuthority('MEMBER', 'ADMIN')")
+    public ResponseEntity<ResponseDTO> getFineByBorrowId(@PathVariable Long borrowId) {
+        ResponseDTO responseDTO = fineService.getFineByBorrowId(borrowId);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }

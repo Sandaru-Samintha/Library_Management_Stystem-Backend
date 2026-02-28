@@ -19,9 +19,6 @@ public class BorrowController {
 
     // ==================== MEMBER ENDPOINTS ====================
 
-    /**
-     * Borrow a book
-     */
     @PostMapping("/book/{bookId}")
     @PreAuthorize("hasAuthority('MEMBER')")
     public ResponseEntity<ResponseDTO> borrowBook(@PathVariable Long bookId) {
@@ -29,10 +26,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Return a borrowed book
-
-     */
     @PutMapping("/return/{borrowId}")
     @PreAuthorize("hasAuthority('MEMBER')")
     public ResponseEntity<ResponseDTO> returnBook(@PathVariable Long borrowId) {
@@ -40,10 +33,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Get my borrowed books
-
-     */
     @GetMapping("/my-books")
     @PreAuthorize("hasAuthority('MEMBER')")
     public ResponseEntity<ResponseDTO> getMyBorrowedBooks() {
@@ -51,10 +40,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     *  Get my complete borrow history
-
-     */
     @GetMapping("/my-history")
     @PreAuthorize("hasAuthority('MEMBER')")
     public ResponseEntity<ResponseDTO> getMyBorrowHistory() {
@@ -62,10 +47,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Get current borrowed books
-
-     */
     @GetMapping("/current")
     @PreAuthorize("hasAuthority('MEMBER')")
     public ResponseEntity<ResponseDTO> getCurrentBorrows() {
@@ -73,10 +54,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Check if member has overdue books
-
-     */
     @GetMapping("/overdue")
     @PreAuthorize("hasAuthority('MEMBER')")
     public ResponseEntity<ResponseDTO> checkMyOverdueBooks() {
@@ -86,10 +63,6 @@ public class BorrowController {
 
     // ==================== ADMIN ENDPOINTS ====================
 
-    /**
-     * Get all borrow records
-
-     */
     @GetMapping("/admin/all")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getAllBorrowRecords() {
@@ -97,10 +70,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     *  Get borrows by status
-
-     */
     @GetMapping("/admin/status/{status}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getBorrowsByStatus(@PathVariable BorrowStatus status) {
@@ -108,10 +77,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Get borrow history for a specific member
-
-     */
     @GetMapping("/admin/member/{memberId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getMemberBorrowHistory(@PathVariable Long memberId) {
@@ -119,10 +84,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Get borrow history for a specific book
-
-     */
     @GetMapping("/admin/book/{bookId}")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getBookBorrowHistory(@PathVariable Long bookId) {
@@ -130,10 +91,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Extend due date for a borrow
-
-     */
     @PutMapping("/admin/{borrowId}/extend")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> extendDueDate(
@@ -143,10 +100,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Check and update overdue books
-
-     */
     @PostMapping("/admin/check-overdue")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> checkOverdueBooks() {
@@ -154,10 +107,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     *  Get all active borrows
-
-     */
     @GetMapping("/admin/active")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getActiveBorrows() {
@@ -165,10 +114,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     * Get all overdue books
-
-     */
     @GetMapping("/admin/overdue")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getOverdueBooks() {
@@ -176,10 +121,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     *  Get books due for return today
-
-     */
     @GetMapping("/admin/today-returns")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getTodayReturns() {
@@ -187,10 +128,6 @@ public class BorrowController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    /**
-     *  Get borrowing statistics
-
-     */
     @GetMapping("/admin/stats")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseDTO> getBorrowingStats() {

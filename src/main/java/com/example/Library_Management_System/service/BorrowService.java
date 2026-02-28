@@ -108,7 +108,7 @@ public class BorrowService {
             bookRepository.save(book);
 
             BorrowRecord savedRecord = borrowRecordRepository.save(borrowRecord);
-            BorrowRecordDTO savedRecordDTO = modelMapper.map(savedRecord, BorrowRecordDTO.class);
+            BorrowRecordDTO savedRecordDTO = convertToDTOWithFine(savedRecord);
 
             return new ResponseDTO(VarList.RSP_SUCCESS,
                     "Book borrowed successfully. Due date: " + savedRecord.getDueDate(),
@@ -165,7 +165,7 @@ public class BorrowService {
             bookRepository.save(book);
 
             BorrowRecord updatedRecord = borrowRecordRepository.save(borrowRecord);
-            BorrowRecordDTO updatedRecordDTO = modelMapper.map(updatedRecord, BorrowRecordDTO.class);
+            BorrowRecordDTO updatedRecordDTO = convertToDTOWithFine(updatedRecord);
 
             String message = "Book returned successfully";
             if (fineAmount > 0) {
@@ -195,8 +195,9 @@ public class BorrowService {
             List<BorrowRecord> borrowRecords = borrowRecordRepository
                     .findByMemberAndStatus(memberOpt.get(), BorrowStatus.BORROWED);
 
-            List<BorrowRecordDTO> borrowDTOs = modelMapper.map(borrowRecords,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> borrowDTOs = borrowRecords.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
 
             return new ResponseDTO(VarList.RSP_SUCCESS, "Borrowed books retrieved successfully", borrowDTOs, null);
 
@@ -220,8 +221,9 @@ public class BorrowService {
 
             List<BorrowRecord> borrowRecords = borrowRecordRepository.findByMember(memberOpt.get());
 
-            List<BorrowRecordDTO> borrowDTOs = modelMapper.map(borrowRecords,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> borrowDTOs = borrowRecords.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
 
             return new ResponseDTO(VarList.RSP_SUCCESS, "Borrow history retrieved successfully", borrowDTOs, null);
 
@@ -253,8 +255,9 @@ public class BorrowService {
             List<BorrowRecord> overdueRecords = borrowRecordRepository
                     .findByMemberAndStatus(memberOpt.get(), BorrowStatus.OVERDUE);
 
-            List<BorrowRecordDTO> overdueDTOs = modelMapper.map(overdueRecords,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> overdueDTOs = overdueRecords.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
 
             String message = overdueRecords.isEmpty() ?
                     "No overdue books" : "You have " + overdueRecords.size() + " overdue book(s)";
@@ -275,8 +278,9 @@ public class BorrowService {
     public ResponseDTO getAllBorrowRecords() {
         try {
             List<BorrowRecord> records = borrowRecordRepository.findAll();
-            List<BorrowRecordDTO> recordDTOs = modelMapper.map(records,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> recordDTOs = records.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
             return new ResponseDTO(VarList.RSP_SUCCESS, "All borrow records retrieved successfully", recordDTOs, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -290,8 +294,9 @@ public class BorrowService {
     public ResponseDTO getBorrowsByStatus(BorrowStatus status) {
         try {
             List<BorrowRecord> records = borrowRecordRepository.findByStatus(status);
-            List<BorrowRecordDTO> recordDTOs = modelMapper.map(records,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> recordDTOs = records.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
             return new ResponseDTO(VarList.RSP_SUCCESS,
                     status + " records retrieved successfully", recordDTOs, null);
         } catch (Exception e) {
@@ -311,8 +316,9 @@ public class BorrowService {
             }
 
             List<BorrowRecord> records = borrowRecordRepository.findByMember(memberOpt.get());
-            List<BorrowRecordDTO> recordDTOs = modelMapper.map(records,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> recordDTOs = records.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
 
             return new ResponseDTO(VarList.RSP_SUCCESS,
                     "Borrow history for member " + memberOpt.get().getMemFullName(), recordDTOs, null);
@@ -334,8 +340,9 @@ public class BorrowService {
             }
 
             List<BorrowRecord> records = borrowRecordRepository.findByBook(bookOpt.get());
-            List<BorrowRecordDTO> recordDTOs = modelMapper.map(records,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> recordDTOs = records.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
 
             return new ResponseDTO(VarList.RSP_SUCCESS,
                     "Borrow history for book " + bookOpt.get().getBookTitle(), recordDTOs, null);
@@ -366,7 +373,7 @@ public class BorrowService {
             record.setDueDate(newDueDate);
 
             BorrowRecord updatedRecord = borrowRecordRepository.save(record);
-            BorrowRecordDTO updatedDTO = modelMapper.map(updatedRecord, BorrowRecordDTO.class);
+            BorrowRecordDTO updatedDTO = convertToDTOWithFine(updatedRecord);
 
             return new ResponseDTO(VarList.RSP_SUCCESS,
                     "Due date extended by " + additionalDays + " days. New due date: " + newDueDate,
@@ -402,8 +409,9 @@ public class BorrowService {
                 updatedCount++;
             }
 
-            List<BorrowRecordDTO> overdueDTOs = modelMapper.map(overdueRecords,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> overdueDTOs = overdueRecords.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
 
             return new ResponseDTO(VarList.RSP_SUCCESS,
                     "Overdue books checked. " + updatedCount + " books marked as overdue.",
@@ -421,8 +429,9 @@ public class BorrowService {
     public ResponseDTO getActiveBorrows() {
         try {
             List<BorrowRecord> records = borrowRecordRepository.findByStatus(BorrowStatus.BORROWED);
-            List<BorrowRecordDTO> recordDTOs = modelMapper.map(records,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> recordDTOs = records.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
             return new ResponseDTO(VarList.RSP_SUCCESS, "Active borrows retrieved successfully", recordDTOs, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -436,8 +445,9 @@ public class BorrowService {
     public ResponseDTO getOverdueBooks() {
         try {
             List<BorrowRecord> records = borrowRecordRepository.findByStatus(BorrowStatus.OVERDUE);
-            List<BorrowRecordDTO> recordDTOs = modelMapper.map(records,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            List<BorrowRecordDTO> recordDTOs = records.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
             return new ResponseDTO(VarList.RSP_SUCCESS, "Overdue books retrieved successfully", recordDTOs, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -446,17 +456,22 @@ public class BorrowService {
     }
 
     /**
-     * 15. Get books due for return today
+     * 15. Get books due for return today (FIXED VERSION)
      */
     public ResponseDTO getTodayReturns() {
         try {
             LocalDate today = LocalDate.now();
-            List<BorrowRecord> records = borrowRecordRepository.findAll().stream()
-                    .filter(r -> r.getStatus() == BorrowStatus.BORROWED && r.getDueDate().equals(today))
-                    .collect(Collectors.toList());
+            System.out.println("Looking for books due today: " + today);
 
-            List<BorrowRecordDTO> recordDTOs = modelMapper.map(records,
-                    new TypeToken<List<BorrowRecordDTO>>() {}.getType());
+            // Find books that are due today and still borrowed (not returned)
+            List<BorrowRecord> records = borrowRecordRepository
+                    .findByDueDateAndStatus(today, BorrowStatus.BORROWED);
+
+            System.out.println("Found " + records.size() + " books due today");
+
+            List<BorrowRecordDTO> recordDTOs = records.stream()
+                    .map(this::convertToDTOWithFine)
+                    .collect(Collectors.toList());
 
             return new ResponseDTO(VarList.RSP_SUCCESS,
                     "Books due for return today: " + records.size(), recordDTOs, null);
@@ -481,7 +496,7 @@ public class BorrowService {
             // Today's borrows and returns
             LocalDate today = LocalDate.now();
             long todayBorrows = borrowRecordRepository.findAll().stream()
-                    .filter(b -> b.getBorrowDate().equals(today))
+                    .filter(b -> b.getBorrowDate() != null && b.getBorrowDate().equals(today))
                     .count();
             long todayReturns = borrowRecordRepository.findAll().stream()
                     .filter(b -> b.getReturnDate() != null && b.getReturnDate().equals(today))
@@ -503,6 +518,62 @@ public class BorrowService {
 
     // ==================== UTILITY METHODS ====================
 
+    /**
+     * Helper method to convert BorrowRecord to DTO with fine information
+     */
+    private BorrowRecordDTO convertToDTOWithFine(BorrowRecord record) {
+        if (record == null) {
+            return null;
+        }
+
+        BorrowRecordDTO dto = new BorrowRecordDTO();
+
+        // Basic borrow record fields
+        dto.setBorrowId(record.getBorrowId());
+        dto.setBorrowDate(record.getBorrowDate());
+        dto.setDueDate(record.getDueDate());
+        dto.setReturnDate(record.getReturnDate());
+        dto.setStatus(record.getStatus());
+        dto.setFineAmount(record.getFineAmount());
+        dto.setCreatedDate(record.getCreatedDate());
+        dto.setUpdatedDate(record.getUpdatedDate());
+
+        // Book fields
+        if (record.getBook() != null) {
+            dto.setBookId(record.getBook().getBookId());
+            dto.setBookTitle(record.getBook().getBookTitle());
+            dto.setBookAuthor(record.getBook().getBookAuthor());
+            dto.setBookGenre(record.getBook().getBookGenre());
+            dto.setBookIsbn(record.getBook().getBookIsbn());
+        }
+
+        // Member fields
+        if (record.getMember() != null) {
+            dto.setMemberId(record.getMember().getMemId());
+            dto.setMemberName(record.getMember().getMemFullName());
+            dto.setMemberEmail(record.getMember().getMemEmail());
+            dto.setMemberPhoneNumber(record.getMember().getMemPhoneNumber());
+        }
+
+        // Admin fields (if present)
+        if (record.getAdmin() != null) {
+            dto.setAdminId(record.getAdmin().getAdminId());
+            dto.setAdminName(record.getAdmin().getAdminFullName());
+            dto.setAdminEmail(record.getAdmin().getAdminEmail());
+        }
+
+        // Find and set fine information
+        if (record.getFineAmount() != null && record.getFineAmount() > 0) {
+            Optional<Fine> fineOpt = fineRepository.findByBorrowRecord_BorrowId(record.getBorrowId());
+            fineOpt.ifPresent(fine -> dto.setFineId(fine.getFineId()));
+        }
+
+        return dto;
+    }
+
+    /**
+     * Get current user email from security context
+     */
     private String getCurrentUserEmail() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
